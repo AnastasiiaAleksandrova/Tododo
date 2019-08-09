@@ -1,0 +1,7 @@
+
+Item: { "id": 12345, "name": "Buy food" }
+
+POST   /items name      RC, Item
+DELETE /items id        RC
+GET    /items           RC, [Item]
+PATCH  /items id name?  RC

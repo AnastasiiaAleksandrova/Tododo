@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
+const bodyParser = require('body-parser');
 
 const keys = require('./keys');
+
+app.use(bodyParser.json());
 
 const mongoose = require('mongoose');
 mongoose.connect(keys.mongoURI, {useNewUrlParser: true}).then(
@@ -11,40 +14,45 @@ mongoose.connect(keys.mongoURI, {useNewUrlParser: true}).then(
   );
 
 const itemSchema = mongoose.Schema({
-    body: String
+    name: String
 });
-
 
 const Item = mongoose.model('Item', itemSchema);
 
-let firstItem = new Item({
-    body: 'Buy food'
-});
-
-firstItem.save().then(
-    entry => { console.log(entry) },
-    err => { console.log(err) }
-);
-
-
-
 // get all items
-app.get('/list', (req, res) => {
+app.get('/items', (req, res) => {
+    Item.find({}).then(
+        result => { console.log(result) },
+        err => { console.log(err) }
+    );
+
+    res.end();
+})
+
+// create a new item
+app.post('/items', (req, res) => {
+    console.log(req.body);
+    let item = new Item({
+        name: req.body.name
+    });
+    
+    item.save().then(
+        entry => { console.log(entry) },
+        err => { console.log(err) }
+    );
+
+    res.end();
+})
+
+// delete an item
+app.delete('/items', (req, res) => {
 
 })
 
-// create new item
-app.post('/new_item', (req, res) => {
+// edit an item
+app.patch('/items', (req, res) => {
 
 })
-
-// delete item
-app.delete('/remove_item', (req, res) => {
-
-})
-
-
-
 
 
 app.listen(PORT, () => console.log('Yes, Sir!'))
