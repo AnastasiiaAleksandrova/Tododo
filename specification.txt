@@ -1,7 +1,68 @@
 
 Item: { "id": 12345, "name": "Buy food" }
 
-POST   /items name      RC, Item
-DELETE /items id        RC
-GET    /items           RC, [Item]
-PATCH  /items id name?  RC
+Create a new item:
+    PostItem: 
+        { 
+            "name": "Buy food" // string, not optional
+        }
+
+    POST /items 
+        Body: PostItem
+
+    Parameters: 
+        no
+
+    Returns: Item 
+
+    Return codes:
+        200 - Success
+
+Get all items:
+    Item:
+        {
+            "id": "5d4d95b51811013c0d04b6f8" // string, not optional
+            "name": "Buy food"               // string, not optional
+        }
+
+    GET /items
+        Body: empty
+
+    Parameters:
+        no
+
+    Returns: [Item]
+
+    Return codes:
+        200 - Success
+
+Delete an item:
+    DELETE /item/{id}
+
+    Parameters:
+        id - id of an item
+
+    Returns:
+        no
+    
+    Return codes:
+        200 - Success
+        404 - Not found
+
+Change an item:
+    PatchItem:
+        {
+            "name": "Pet a cat" // string, optional
+        }
+
+    PATCH /item/{id}
+
+    Parameters:
+        id - id of an item
+
+    Returns:
+        Item
+
+    Return codes:
+        200 - Success
+        404 - Not found
