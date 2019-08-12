@@ -64,16 +64,22 @@ app.post('/items', (req, res) => {
 })
 
 // delete an item
+// !!! code 200 in did not find id --- fix it!
 app.delete('/item/:id', (req, res) => {
     let objectId = mongoose.Types.ObjectId(req.params.id)
     Item.deleteOne({_id: objectId}).then(
-        () => { console.log('done') },
-        err => { console.log(err) }
+        () => {
+            console.log('done');
+            res.status(200).end();
+        },
+        err => {
+            console.log(err);
+            res.status(404).end();
+        }
     ).catch(reason => {
         console.log(reason);
         res.status(500).end();
     });
-    res.end();
 })
 
 // edit an item
