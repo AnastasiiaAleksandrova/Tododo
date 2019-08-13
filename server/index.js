@@ -2,11 +2,23 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
+const logger = require('express-logger');
+//const expressValidator = require('express-validator');
+
 
 
 const keys = require('./keys');
 
 app.use(bodyParser.json());
+app.use(logger({path: "./logfile.txt"}));
+//app.use(expressValidator());
+app.use((req, res, next) => {
+    if (!req.is('application/json')) {
+        res.status(400).end();
+    } else {
+        next();
+    }
+})
 
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
@@ -46,28 +58,46 @@ app.get('/items', (req, res) => {
 
 // create a new item
 app.post('/items', (req, res) => {
-    let item = new Item({
-        name: req.body.name
-    });
     
-    item.save().then(
-        result => {
-            res.send(new ApiItem(result._id, result.name))
-        },
-        err => {
-            console.log(err)
-        }
-    ).catch(reason => {
-        console.log(reason);
-        res.status(500).end();
-    });
+    if (req.body.name) {
+        let item = new Item({
+            name: req.body.name
+        });
+        
+        item.save().then(
+            result => {
+                res.send(new ApiItem(result._id, result.name))
+            },
+            err => {
+                console.log(err)
+            }
+        ).catch(reason => {
+            console.log(reason);
+            res.status(500).end();
+        });
+    } else {
+        res.status(400).end();
+    }
+
+    
 })
 
 // delete an item
 // !!! code 200 in did not find id --- fix it!
 app.delete('/item/:id', (req, res) => {
-    let objectId = mongoose.Types.ObjectId(req.params.id)
-    Item.deleteOne({_id: objectId}).then(
+    try {
+        let query = { _id: mongoose.Types.ObjectId(req.params.id) }
+        console.log(Item.deleteOne(query, (err, result) => {
+            if (!err && result.n > 0) {
+                res.status(200).end()
+            } else {
+                res.status(404).end()
+            }
+        }))
+    } catch (t) {
+        res.status(500).end()
+    }
+    /*Item.deleteOne({_id: objectId}).then(
         () => {
             console.log('done');
             res.status(200).end();
@@ -79,7 +109,7 @@ app.delete('/item/:id', (req, res) => {
     ).catch(reason => {
         console.log(reason);
         res.status(500).end();
-    });
+    });*/
 })
 
 // edit an item
