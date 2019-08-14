@@ -13,10 +13,12 @@ Create a new item:
     Parameters: 
         no
 
+
     Returns: Item 
 
     Return codes:
         200 - Success
+        400 - Bad request
 
 Get all items:
     Item:
@@ -66,3 +68,4 @@ Change an item:
     Return codes:
         200 - Success
         404 - Not found
+        400 - Bad request

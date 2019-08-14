@@ -3,15 +3,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const logger = require('express-logger');
-//const expressValidator = require('express-validator');
-
 
 
 const keys = require('./keys');
 
 app.use(bodyParser.json());
 app.use(logger({path: "./logfile.txt"}));
-//app.use(expressValidator());
+
 
 
 const mongoose = require('mongoose');
@@ -52,22 +50,25 @@ app.get('/items', (req, res) => {
 
 // create a new item
 app.post('/items', (req, res) => {
-    
-        let item = new Item({
-            name: req.body.name
-        });
-        
-        item.save().then(
-            result => {
-                res.send(new ApiItem(result._id, result.name))
-            },
-            err => {
-                console.log(err)
-            }
-        ).catch(reason => {
-            console.log(reason);
-            res.status(500).end();
-        });  
+        if (req.is('application/json') && req.body.name) {
+            let item = new Item({
+                name: req.body.name
+            });
+            
+            item.save().then(
+                result => {
+                    res.send(new ApiItem(result._id, result.name))
+                },
+                err => {
+                    console.log(err)
+                }
+            ).catch(reason => {
+                console.log(reason);
+                res.status(500).end();
+            }); 
+        } else {
+            res.status(400).end();
+        }   
 })
 
 // delete an item
@@ -88,8 +89,9 @@ app.delete('/item/:id', (req, res) => {
 
 // edit an item
 app.patch('/item/:id', (req, res) => {
-    let objectId = mongoose.Types.ObjectId(req.params.id)
-    Item.findOneAndUpdate({_id: objectId}, req.body, { new: true }).then(
+    if (req.is('application/json') && req.body.name) {
+        let objectId = mongoose.Types.ObjectId(req.params.id);
+        Item.findOneAndUpdate({_id: objectId}, req.body, { new: true }).then(
         result => {
             if (result != null) {
                 res.send(new ApiItem(result._id, result.name))
@@ -101,10 +103,14 @@ app.patch('/item/:id', (req, res) => {
             console.log(err);
             res.status(500).end();    
         }
-    ).catch(reason => {
-        console.log(reason);
-        res.status(500).end();
-    });
+        ).catch(reason => {
+            console.log(reason);
+            res.status(500).end();
+        });
+    } else {
+        res.status(400).end();
+    }
+    
 })
 
 
