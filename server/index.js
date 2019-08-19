@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const logger = require('express-logger');
 const { check, validationResult } = require('express-validator');
+var longpoll = require("express-longpoll")(app, { DEBUG: true });
 
 
 const keys = require('./keys');
@@ -34,6 +35,10 @@ class ApiItem {
     }
 }
 
+// long poll
+longpoll.create("/poll");
+
+
 // get all items
 app.get('/items', (req, res) => {
     Item.find({}).then(
@@ -50,28 +55,22 @@ app.get('/items', (req, res) => {
 })
 
 // create a new item
-app.post('/items', [
-    check('name').isLength({min: 1})
-], (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
-
-    let item = new Item({
-        name: req.body.name
-    });
-    item.save().then(
-        result => {
-            res.send(new ApiItem(result._id, result.name))
-        },
-        err => {
-            console.log(err)
+app.post('/items', [check('name').isLength({min: 1})], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
-    ).catch(reason => {
-        console.log(reason);
+        
+        await new Item(req.body).save();
+        
+        let updatedList = await Item.find({});
+        updatedList = updatedList.map(item => { return new ApiItem(item._id, item.name) });
+        longpoll.publish("/poll", updatedList);
+        res.end();
+    } catch (e) {
         res.status(500).end();
-    });   
+    } 
 })
 
 // delete an item
