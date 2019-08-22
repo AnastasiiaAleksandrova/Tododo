@@ -22,8 +22,7 @@
     "express-logger": "0.0.3",
     "express-longpoll": "0.0.4",
     "express-validator": "^6.1.1",
-    "mongoose": "^5.6.9",
-    "uniqid": "^5.0.3"
+    "mongoose": "^5.6.9"
   },
   "bugs": {
     "url": "https://github.com/AnastasiiaAleksandrova/Tododo/issues"
