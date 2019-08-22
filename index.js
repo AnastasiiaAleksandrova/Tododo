@@ -4,18 +4,16 @@ const PORT = process.env.PORT || 3030;
 const bodyParser = require('body-parser');
 const logger = require('express-logger');
 const { check, validationResult } = require('express-validator');
-var longpoll = require("express-longpoll")(app, { DEBUG: true });
+const cors = require('cors');
+const longpoll = require("express-longpoll")(app, { DEBUG: true });
 
 
 const keys = require('./keys');
 
 app.use(bodyParser.json());
 app.use(logger({path: "./logfile.txt"}));
-app.use(function(req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });
+app.use(cors());
+
 
 
 
