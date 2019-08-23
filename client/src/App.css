@@ -1,0 +1,15 @@
+input {
+   width: 100%;
+   height: 2rem;
+   margin-bottom: 1rem;
+   border: none;
+   border-bottom: 2px solid lightblue;
+    
+ }
+
+ input:focus {
+     outline: none;
+ }
+
+ 
+

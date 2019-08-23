@@ -9,17 +9,30 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      list: null
+      list: [],
+      new: ''
     }
+
+    this.fetchData = this.fetchData.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
   }
   render() {
     
-    if (this.state.list) {
       return(
         <div>
           <Header />
+          <Card border="primary" style={{ margin: '1rem' }}>
+              <Card.Body>
+                <form>
+                  <input placeholder='Type here' onChange={this.handleInputChange}></input>
+                  <Card.Link href='#' onClick={this.handleAdd}><i className="fas fa-plus"></i> Add new item</Card.Link>
+                </form>
+              </Card.Body>
+            </Card>
           {this.state.list.map(el =>
-            <Card key={el.id} style={{margin:'0,2rem'}}>
+            <Card key={el.id} style={{ margin: '1rem' }}>
               <Card.Body>
                 <Card.Text>{el.name}</Card.Text>
                 <Card.Link href='#'><i className="fas fa-pencil-alt"></i> Edit</Card.Link>
@@ -28,11 +41,6 @@ class App extends Component {
             </Card>)}
         </div>
       )
-    } else {
-      return(
-        <div>Loading data...</div>
-      )
-    }
     
   } 
 
@@ -49,6 +57,25 @@ class App extends Component {
     }
   }
 
+  handleInputChange(event) {
+    this.setState({new: event.target.value});
+  }
+
+  async handleAdd() {
+    try {
+      await fetch(`http://localhost:3030/items`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({name: this.state.new})
+        });
+      this.fetchData();
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
   async fetchData() {
     try {
       let response = await fetch('http://localhost:3030/items');
@@ -57,7 +84,6 @@ class App extends Component {
         list: list
       });
       console.log(this.state);
-      
     } catch(e) {
       console.log(e)
     }

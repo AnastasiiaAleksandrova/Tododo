@@ -8,11 +8,11 @@ function Header(props) {
     <Navbar bg="light" expand="sm" sticky="top">
         <Navbar.Brand href="#home">Tododo</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
+        {/* <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ml-auto">
                 <Card.Link href="#"><i className="fas fa-plus"></i> Add a new item</Card.Link>
             </Nav>
-        </Navbar.Collapse>
+        </Navbar.Collapse> */}
     </Navbar>
     );
   }
