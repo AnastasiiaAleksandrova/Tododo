@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Button from "@material-ui/core/Button";
 import AddIcon from '@material-ui/icons/Add';
 import TextField from './textField';
-import Card from './card';
+import Card from './Card';
 import BackToTop from './nav&scroll';
 
 
@@ -12,18 +12,17 @@ import './App.css';
 class App extends Component {
   constructor(props) {
     super(props);
-    // this.myRef = React.forwardRef();
+    
     this.state = {
       list: [],
-      new: '',
-      // edit: ''
+      new: ''
     }
 
     this.fetchData = this.fetchData.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
-    // this.handleEdit = this.handleEdit.bind(this);
+    
     
   }
   render() {
@@ -35,11 +34,13 @@ class App extends Component {
       return(
         <div>
           <BackToTop />
+          
           <TextField onChange={this.handleInputChange} value={this.state.new} />
           <Button size="small" onClick={this.handleAdd} style={styleBut}><AddIcon />Add a new item</Button>
+          
          
           {this.state.list.map(el =>
-          <Card key={el.id} content={el.name} onDeleteClick={() => this.handleDelete(el.id)} onEditClick={this.handleEdit}/>)}
+          <Card key={el.id} content={el.name} onDeleteClick={() => this.handleDelete(el.id)} />)}
           
         </div>
       )
@@ -49,6 +50,7 @@ class App extends Component {
   componentDidMount() {
     this.fetchData();
   }
+
 
 
   handleInputChange(event) {
@@ -64,10 +66,6 @@ class App extends Component {
     }
   }
 
-  async handleEdit() {
-    // const node = this.myRef.current;
-    // console.log(node);
-  }
 
 
   async handleAdd() {
