@@ -23,7 +23,7 @@ export default function TextFields(props) {
 
   return (
     <div style={styleDiv}>
-      <TextField label="Type here" multiline className={classes.textField} onChange={props.onChange} value={props.value} />
+      <TextField label="Type here" multiline className={classes.textField} onChange={props.onChange} onBlur={props.onBlur} value={props.value} />
     </div>
   );
 }

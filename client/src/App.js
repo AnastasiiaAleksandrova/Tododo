@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Button from "@material-ui/core/Button";
 import AddIcon from '@material-ui/icons/Add';
 import TextField from './textField';
-import Card from './Card';
+import Card from './Card/Card';
 import BackToTop from './nav&scroll';
 
 
@@ -15,13 +15,17 @@ class App extends Component {
     
     this.state = {
       list: [],
-      new: ''
+      new: '',
+      editableIndex: null,
+      editableValue: null
     }
 
     this.fetchData = this.fetchData.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleCreateInput = this.handleCreateInput.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
+    this.makeEditable = this.makeEditable.bind(this);
+    this.handleEditInput = this.handleEditInput.bind(this);
     
     
   }
@@ -35,12 +39,18 @@ class App extends Component {
         <div>
           <BackToTop />
           
-          <TextField onChange={this.handleInputChange} value={this.state.new} />
+          <TextField onChange={this.handleCreateInput} value={this.state.new} />
           <Button size="small" onClick={this.handleAdd} style={styleBut}><AddIcon />Add a new item</Button>
           
          
-          {this.state.list.map(el =>
-          <Card key={el.id} content={el.name} onDeleteClick={() => this.handleDelete(el.id)} />)}
+          {this.state.list.map((el, index) =>
+          <Card key={el.id} id={el.id} index={index} content={
+            index === this.state.editableIndex 
+              ? <TextField onChange={this.handleEditInput} value={this.state.editableValue} onBlur={this.handleEdit} /> 
+              : el.name
+          } 
+          onDeleteClick={() => this.handleDelete(el.id)} 
+          onDoubleClick={ () => this.makeEditable(index) } />)}
           
         </div>
       )
@@ -51,9 +61,25 @@ class App extends Component {
     this.fetchData();
   }
 
+  makeEditable(index) {
+    this.setState({
+      editableIndex: index,
+      editableValue: this.state.list[index].name
+    })
+  }
 
+  handleEdit(event) {
+    console.log('PUT!!!')
+  }
 
-  handleInputChange(event) {
+  handleEditInput(event) {
+    this.setState({
+        editableValue: event.target.value
+    })
+    return true
+  }
+
+  handleCreateInput(event) {
     this.setState({new: event.target.value});
   }
 
@@ -65,8 +91,6 @@ class App extends Component {
       console.log(e);
     }
   }
-
-
 
   async handleAdd() {
     if (this.state.new) {
@@ -86,7 +110,6 @@ class App extends Component {
     }
     }
     
-
   async fetchData() {
     try {
       let response = await fetch('http://localhost:3030/items');
