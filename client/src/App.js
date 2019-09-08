@@ -22,10 +22,12 @@ class App extends Component {
 
     this.fetchData = this.fetchData.bind(this);
     this.handleCreateInput = this.handleCreateInput.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
-    this.handleAdd = this.handleAdd.bind(this);
+    this.delete = this.delete.bind(this);
+    this.add = this.add.bind(this);
     this.makeEditable = this.makeEditable.bind(this);
     this.handleEditInput = this.handleEditInput.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
+    this.patch = this.patch.bind(this);
     
     
   }
@@ -40,17 +42,21 @@ class App extends Component {
           <BackToTop />
           
           <TextField onChange={this.handleCreateInput} value={this.state.new} />
-          <Button size="small" onClick={this.handleAdd} style={styleBut}><AddIcon />Add a new item</Button>
+          <Button size="small" onClick={this.add} style={styleBut}><AddIcon />Add a new item</Button>
           
          
           {this.state.list.map((el, index) =>
-          <Card key={el.id} id={el.id} index={index} content={
-            index === this.state.editableIndex 
-              ? <TextField onChange={this.handleEditInput} value={this.state.editableValue} onBlur={this.handleEdit} /> 
-              : el.name
-          } 
-          onDeleteClick={() => this.handleDelete(el.id)} 
-          onDoubleClick={ () => this.makeEditable(index) } />)}
+            <Card key={el.id}
+                  index={index}
+                  content={
+                    index === this.state.editableIndex ?
+                    <TextField onChange={this.handleEditInput}
+                               value={this.state.editableValue}
+                               onBlur={() => this.handleBlur(el.id)} /> 
+                    : el.name
+                    } 
+                  onDeleteClick={() => this.delete(el.id)} 
+                  onDoubleClick={() => this.makeEditable(index)} />)}
           
         </div>
       )
@@ -68,8 +74,12 @@ class App extends Component {
     })
   }
 
-  handleEdit(event) {
-    console.log('PUT!!!')
+  handleBlur(id) {
+    this.patch(id);
+    this.setState({
+      editableIndex: null,
+      editableValue: null
+    })
   }
 
   handleEditInput(event) {
@@ -79,11 +89,27 @@ class App extends Component {
     return true
   }
 
+
   handleCreateInput(event) {
     this.setState({new: event.target.value});
   }
 
-  async handleDelete(id) {
+  async patch(id) {
+    try {
+      await fetch(`http://localhost:3030/item/${id}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: "PATCH",
+        body: JSON.stringify({name: this.state.editableValue})
+        });
+      this.fetchData();
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  async delete(id) {
     try {
       await fetch(`http://localhost:3030/item/${id}`, {method: 'DELETE'});
       this.fetchData();
@@ -92,7 +118,7 @@ class App extends Component {
     }
   }
 
-  async handleAdd() {
+  async add() {
     if (this.state.new) {
       try {
         await fetch(`http://localhost:3030/items`, {
