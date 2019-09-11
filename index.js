@@ -9,7 +9,8 @@ const cors = require('cors');
 const path = require('path');
 const longpoll = require('express-longpoll')(app, { DEBUG: true });
 
-app.use('/', express.static('client/build'));
+// app.use('/', express.static('client/build'));
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 const keys = require('./keys');
 
