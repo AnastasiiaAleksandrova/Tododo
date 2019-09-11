@@ -97,7 +97,7 @@ class App extends Component {
 
   async patch(id) {
     try {
-      await fetch(`http://localhost:3030/item/${id}`, {
+      await fetch(`/item/${id}`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -112,7 +112,7 @@ class App extends Component {
 
   async delete(id) {
     try {
-      await fetch(`http://localhost:3030/item/${id}`, {method: 'DELETE'});
+      await fetch(`/item/${id}`, {method: 'DELETE'});
       this.fetchData();
     } catch(e) {
       console.log(e);
@@ -122,7 +122,7 @@ class App extends Component {
   async add() {
     if (this.state.new) {
       try {
-        await fetch(`http://localhost:3030/items`, {
+        await fetch(`/items`, {
           headers: {
             'Content-Type': 'application/json'
           },
@@ -139,7 +139,7 @@ class App extends Component {
     
   async fetchData() {
     try {
-      let response = await fetch('http://localhost:3030/items');
+      let response = await fetch('/items');
       let list = await response.json();
       this.setState({
         list: list
