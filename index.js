@@ -44,6 +44,10 @@ class ApiItem {
 longpoll.create("/poll");
 
 
+app.get('/*', function(req, res) {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+
 // get all items
 app.get('/items', (req, res) => {
     Item.find({}).then(
