@@ -41,7 +41,7 @@ class App extends Component {
         <div>
           <BackToTop />
           
-          <TextField onChange={this.handleCreateInput} value={this.state.new} />
+          <TextField onChange={this.handleCreateInput} value={this.state.new} autoFocus={false} />
           <Button size="small" onClick={this.add} style={styleBut}><AddIcon />Add a new item</Button>
           
          
@@ -52,7 +52,8 @@ class App extends Component {
                     index === this.state.editableIndex ?
                     <TextField onChange={this.handleEditInput}
                                value={this.state.editableValue}
-                               onBlur={() => this.handleBlur(el.id)} /> 
+                               onBlur={() => this.handleBlur(el.id)}
+                               autoFocus={true} /> 
                     : el.name
                     } 
                   onDeleteClick={() => this.delete(el.id)} 

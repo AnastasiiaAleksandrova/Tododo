@@ -27,7 +27,8 @@ export default function TextFields(props) {
                  multiline className={classes.textField}
                  onChange={props.onChange}
                  onBlur={props.onBlur}
-                 value={props.value} />
+                 value={props.value}
+                 autoFocus={props.autoFocus} />
     </div>
   );
 }
