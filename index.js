@@ -44,7 +44,9 @@ class ApiItem {
 // long poll
 longpoll.create("/poll");
 
-
+app.get('/', function(req, res) {
+    res.sendFile('client/build/index.html');
+  });
 
 
 // get all items
