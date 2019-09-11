@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3030;
+// const DEV_URL = 'http/localhost:3030';
 const bodyParser = require('body-parser');
 const logger = require('express-logger');
 const { check, validationResult } = require('express-validator');
@@ -47,6 +48,7 @@ longpoll.create("/poll");
 
 
 // get all items
+// app.get(`${DEV_URL}/items`, (req, res) => {
 app.get('/items', (req, res) => {
     Item.find({}).then(
         result => { 
@@ -62,6 +64,7 @@ app.get('/items', (req, res) => {
 })
 
 // create a new item
+// app.post(`${DEV_URL}/items`, [check('name').isLength({min: 1})], async (req, res) => {
 app.post('/items', [check('name').isLength({min: 1})], async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -81,6 +84,7 @@ app.post('/items', [check('name').isLength({min: 1})], async (req, res) => {
 })
 
 // delete an item
+// app.delete(`${DEV_URL}/item/:id`, (req, res) => {
 app.delete('/item/:id', (req, res) => {
     try {
         let query = { _id: mongoose.Types.ObjectId(req.params.id) }
@@ -97,6 +101,7 @@ app.delete('/item/:id', (req, res) => {
 })
 
 // edit an item
+// app.patch(`${DEV_URL}/item/:id`, [
 app.patch('/item/:id', [
     check('name').isLength({min: 1})
 ], (req, res) => {
