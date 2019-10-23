@@ -1,155 +1,125 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 import Button from "@material-ui/core/Button";
 import AddIcon from '@material-ui/icons/Add';
 import TextField from './textField';
 import Card from './Card/Card';
 import BackToTop from './nav&scroll';
-
-
 import './App.css';
 
+const DEV_URL = 'http://localhost:3030';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      list: [],
-      new: '',
-      editableIndex: null,
-      editableValue: null
-    }
+function App() {
 
-    this.fetchData = this.fetchData.bind(this);
-    this.handleCreateInput = this.handleCreateInput.bind(this);
-    this.delete = this.delete.bind(this);
-    this.add = this.add.bind(this);
-    this.makeEditable = this.makeEditable.bind(this);
-    this.handleEditInput = this.handleEditInput.bind(this);
-    this.handleBlur = this.handleBlur.bind(this);
-    this.patch = this.patch.bind(this);
-    
-    
-  }
-  render() {
-      const styleBut = {
-        margin: '0.5rem 0 0 1rem'
-      }
-      
+  const [list, setList] = useState([]);
+  const [newItem, setNew] = useState('');
+  const [editableIndex, setIndex] = useState(null);
+  const [editableValue, setValue] = useState(null);
 
-      return(
-        <div>
-          <BackToTop />
-          
-          <TextField onChange={this.handleCreateInput} value={this.state.new} autoFocus={false} />
-          <Button size="small" onClick={this.add} style={styleBut}><AddIcon />Add a new item</Button>
-          
-         
-          {this.state.list.map((el, index) =>
-            <Card key={el.id}
-                  index={index}
-                  content={
-                    index === this.state.editableIndex ?
-                    <TextField onChange={this.handleEditInput}
-                               value={this.state.editableValue}
-                               onBlur={() => this.handleBlur(el.id)}
-                               autoFocus={true} /> 
-                    : el.name
-                    } 
-                  onDeleteClick={() => this.delete(el.id)} 
-                  onDoubleClick={() => this.makeEditable(index)} />)}
-          
-        </div>
-      )
-    
-  } 
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  componentDidMount() {
-    this.fetchData();
-  }
-
-  makeEditable(index) {
-    this.setState({
-      editableIndex: index,
-      editableValue: this.state.list[index].name
-    })
-  }
-
-  handleBlur(id) {
-    this.patch(id);
-    this.setState({
-      editableIndex: null,
-      editableValue: null
-    })
-  }
-
-  handleEditInput(event) {
-    this.setState({
-        editableValue: event.target.value
-    })
-    return true
-  }
-
-
-  handleCreateInput(event) {
-    this.setState({new: event.target.value});
-  }
-
-  async patch(id) {
+  async function fetchData() {
     try {
-      await fetch(`/item/${id}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        method: "PATCH",
-        body: JSON.stringify({name: this.state.editableValue})
-        });
-      this.fetchData();
-    } catch(e) {
-      console.log(e);
+      let response = await fetch(`${DEV_URL}/items`);
+      response = await response.json();
+      setList(response);
+    } catch(err) {
+      console.log(err);
     }
   }
 
-  async delete(id) {
-    try {
-      await fetch(`/item/${id}`, {method: 'DELETE'});
-      this.fetchData();
-    } catch(e) {
-      console.log(e);
-    }
-  }
-
-  async add() {
-    if (this.state.new) {
+  async function add() {
+    if (newItem) {
       try {
-        await fetch(`/items`, {
+        await fetch(`${DEV_URL}/items`, {
           headers: {
             'Content-Type': 'application/json'
           },
           method: "POST",
-          body: JSON.stringify({name: this.state.new})
+          body: JSON.stringify({name: newItem})
           });
-          this.setState({new: ""})
-        this.fetchData();
+        setNew('');
+        fetchData();
       } catch(e) {
         console.log(e);
       }
     }
-    }
-    
-  async fetchData() {
+  }
+
+  async function patch(id) {
     try {
-      let response = await fetch('/items');
-      let list = await response.json();
-      this.setState({
-        list: list
-      });
-      console.log(this.state);
+      await fetch(`${DEV_URL}/item/${id}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: "PATCH",
+        body: JSON.stringify({name: editableValue})
+        });
+      fetchData();
     } catch(e) {
-      console.log(e)
+      console.log(e);
+    }
+  }
+  
+  async function deleteItem(id) {
+    try {
+      await fetch(`${DEV_URL}/item/${id}`, {method: 'DELETE'});
+      fetchData();
+    } catch(e) {
+      console.log(e);
     }
   }
 
+  function makeEditable(index) {
+    setIndex(index);
+    setValue(list[index].name);
+  }
+
+  function handleEditInput(event) {
+    setValue(event.target.value);
+    return true;
+  }
+
+  function handleBlur(id) {
+    patch(id);
+    setIndex(null);
+    setValue(null);
+  }
+
+  function handleCreateInput(event) {
+    setNew(event.target.value);
+  }
+
+  const styleBut = {
+    margin: '0.5rem 0 0 1rem'
+  }
+
+  return(
+    <div>
+      <BackToTop />
+      
+      <TextField onChange={handleCreateInput} value={newItem} autoFocus={false} />
+      <Button size="small" onClick={add} style={styleBut}><AddIcon />Add a new item</Button>
+      
+     
+      {list.map((el, index) =>
+        <Card key={el.id}
+              index={index}
+              content={
+                index === editableIndex ?
+                <TextField onChange={handleEditInput}
+                           value={editableValue}
+                           onBlur={() => handleBlur(el.id)}
+                           autoFocus={true} /> 
+                : el.name
+                } 
+              onDeleteClick={() => deleteItem(el.id)} 
+              onDoubleClick={() => makeEditable(index)} 
+              />)
+              }
+    </div>
+  )
 }
 
 export default App;

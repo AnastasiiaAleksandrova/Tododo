@@ -1,22 +1,40 @@
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3030;
-// const DEV_URL = 'http/localhost:3030';
 const bodyParser = require('body-parser');
 const logger = require('express-logger');
 const { check, validationResult } = require('express-validator');
 const cors = require('cors');
 const path = require('path');
 const longpoll = require('express-longpoll')(app, { DEBUG: true });
-
-// app.use('/', express.static('client/build'));
-app.use(express.static(path.join(__dirname, 'client/build')));
-
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const keys = require('./keys');
+
+
+if (process.env.NODE_ENV === 'production') {
+    app.use('/', express.static('client/build'));
+    app.use(express.static(path.join(__dirname, 'client/build')));
+}
+
 
 app.use(bodyParser.json());
 app.use(logger({path: "./logfile.txt"}));
 app.use(cors());
+
+passport.use(
+    new GoogleStrategy(
+      {
+        clientID: keys.googleID,
+        clientSecret: keys.googleSecret,
+        callbackURL: '/auth/google/callback/'
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        console.log(profile);
+        done(null, user);
+      }
+    )
+  );
 
 
 
@@ -45,14 +63,27 @@ class ApiItem {
 // long poll
 longpoll.create("/poll");
 
-app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
+// app.get('/', function(req, res) {
+//     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+//   });
 
+app.get(
+    '/auth/google',
+    passport.authenticate('google', {
+      scope: ['profile', 'email']
+    })
+  );
 
-// get all items
-// app.get(`${DEV_URL}/items`, (req, res) => {
+app.get(
+    '/auth/google/callback',
+    passport.authenticate('google'),
+    (req, res) => {
+      res.redirect('/items');
+    }
+  );
+
 app.get('/items', (req, res) => {
+
     Item.find({}).then(
         result => { 
             res.send(result.map(item => { return new ApiItem(item._id, item.name) })); 
@@ -66,9 +97,9 @@ app.get('/items', (req, res) => {
     });
 })
 
-// create a new item
-// app.post(`${DEV_URL}/items`, [check('name').isLength({min: 1})], async (req, res) => {
+
 app.post('/items', [check('name').isLength({min: 1})], async (req, res) => {
+
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -86,9 +117,9 @@ app.post('/items', [check('name').isLength({min: 1})], async (req, res) => {
     } 
 })
 
-// delete an item
-// app.delete(`${DEV_URL}/item/:id`, (req, res) => {
+
 app.delete('/item/:id', (req, res) => {
+
     try {
         let query = { _id: mongoose.Types.ObjectId(req.params.id) }
         console.log(Item.deleteOne(query, (err, result) => {
@@ -103,9 +134,9 @@ app.delete('/item/:id', (req, res) => {
     }
 })
 
-// edit an item
-// app.patch(`${DEV_URL}/item/:id`, [
+
 app.patch('/item/:id', [
+
     check('name').isLength({min: 1})
 ], (req, res) => {
 
@@ -136,9 +167,9 @@ app.patch('/item/:id', [
     
 })
 
-app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
+// app.get('*', function(req, res) {
+//     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+//   });
 
 
 app.listen(PORT, () => console.log('Yes, Sir!'))
