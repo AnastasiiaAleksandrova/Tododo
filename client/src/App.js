@@ -9,7 +9,10 @@ import './App.css';
 const DEV_URL = 'http://localhost:3030';
 
 function App() {
-
+  
+  const styleBut = {
+    margin: '0.5rem 0 0 1rem'
+  }
   const [list, setList] = useState([]);
   const [newItem, setNew] = useState('');
   const [editableIndex, setIndex] = useState(null);
@@ -91,9 +94,6 @@ function App() {
     setNew(event.target.value);
   }
 
-  const styleBut = {
-    margin: '0.5rem 0 0 1rem'
-  }
 
   return(
     <div>
